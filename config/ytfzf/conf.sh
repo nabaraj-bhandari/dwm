@@ -1,0 +1,14 @@
+load_thumbnail_viewer=chafa
+show_thumbnails=1
+thumbnail_viewer=chafa
+#skip_thumb_download=0
+async_thumbnails=1
+#notify_playing=1
+#search_again=1
+#thumbnail_quality=maxres
+#pages_to_scrape=1
+#max_thread_count=2
+search_region=NP
+#scripting_video_count=5
+ytdl_pref='620+251/270+251/614+251/609+251/232+251/606+251/18/bv+ba'
+ytdl_pref='614+251/232+251/606+251/18/bv+ba'
