@@ -10,17 +10,17 @@ setxkbmap us &
 xrandr --output eDP-1 --mode 1920x1080 &
 
 # Compositor
-picom -f &
+picom --config ~/.config/picom/picom.conf &
 
 # Wallpaper
 nitrogen --restore &
 
 # Status Bar
-slstatus &
+dwmblocks &
 
 # Loop
 while true; do
-	dwm >/dev/null 2>&1
+        dwm >/dev/null 2>&1
 done
 
 # Execute DWM
