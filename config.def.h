@@ -88,8 +88,8 @@ static const char *monBrightnessDown[] = {"brightnessctl", "set", "10%-", NULL};
 static const char *monBrightnessUp[] = {"brightnessctl", "set", "+10%", NULL};
 static const char *screenshot[] = {"flameshot", "gui", NULL};
 static const char *fullscreenshot[] = {"flameshot", "full", "-c", "-p", "/home/nabaraj/Pictures/screenshots", NULL};
-static const char *emojiPicker[] = {"~/.local/bin/emoji-picker"};
-static const char *firefoxDefault[] = {"~/.local/bin/ff-tabs"};
+static const char *emojiPicker[] = {"/home/nabaraj/.local/bin/emoji-picker"};
+static const char *firefoxDefault[] = {"/home/nabaraj/.local/bin/ff-tabs"};
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */

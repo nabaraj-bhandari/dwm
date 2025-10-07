@@ -831,12 +831,11 @@ drawbar(Monitor *m)
 		return;
 
 	/* draw status first so it can be overdrawn by tags later */
-	if (m == selmon) { /* status is only drawn on selected monitor */
-		drw_setscheme(drw, scheme[SchemeNorm]);
-		tw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
-		drw_text(drw, m->ww - sw - 2 * sp, 0, sw, bh, 0, stext, 0);
-	}
-
+  if (m == selmon) { /* status is only drawn on selected monitor */
+    drw_setscheme(drw, scheme[SchemeNorm]);
+    tw = TEXTW(stext) - lrpad + 2; /* 2px right padding */
+    drw_text(drw, m->ww - tw - 2 * sp, 0, tw, bh, 0, stext, 0);
+  }
 	for (c = m->clients; c; c = c->next) {
 		if (ISVISIBLE(c))
 			n++;
@@ -844,7 +843,6 @@ drawbar(Monitor *m)
 		if (c->isurgent)
 			urg |= c->tags;
 	}
-
 
 	/* use colored scheme for visibility */
 	drw_setscheme(drw, scheme[SchemeNorm]);
@@ -877,9 +875,6 @@ drawbar(Monitor *m)
 
 	/* start drawing tags after logo */
 	x = dwmlogowdth;
-
-
-
 	for (i = 0; i < LENGTH(tags); i++) {
     /* Do not draw vacant tags */
 		if(!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
@@ -895,30 +890,25 @@ drawbar(Monitor *m)
 
 	if ((w = m->ww - tw - x) > bh) {
 		if (n > 0) {
-			int remainder = w % n;
-			int tabw = (1.0 / (double)n) * w + 1;
-			for (c = m->clients; c; c = c->next) {
-				if (!ISVISIBLE(c))
-					continue;
-				if (m->sel == c)
-					scm = SchemeSel;
-				else if (HIDDEN(c))
-					scm = SchemeHid;
-				else
-					scm = SchemeNorm;
-				drw_setscheme(drw, scheme[scm]);
+      int remainder = w;
+      for (c = m->clients; c; c = c->next) {
+          if (!ISVISIBLE(c))
+              continue;
+          if (m->sel == c)
+              scm = SchemeSel;
+          else if (HIDDEN(c))
+              scm = SchemeHid;
+          else
+              scm = SchemeNorm;
+          drw_setscheme(drw, scheme[scm]);
 
-				if (remainder >= 0) {
-					if (remainder == 0) {
-						tabw--;
-					}
-					remainder--;
-				}
-				drw_text(drw, x, 0, tabw, bh, lrpad / 2, c->name, 0);
-        drw_text(drw, x, 0, tabw - 2 * sp, bh, lrpad / 2, c->name, 0);
+          int cw = (remainder + n - 1) / n; // distribute remaining width evenly
+          remainder -= cw;
 
-				x += tabw;
-			}
+          drw_text(drw, x, 0, cw, bh, lrpad / 2, c->name, 0);
+          x += cw;
+          n--; // decrement remaining windows
+      }
 		} else {
 			drw_setscheme(drw, scheme[SchemeNorm]);
 			drw_rect(drw, x, 0, w - 2 * sp, bh, 1, 1);
