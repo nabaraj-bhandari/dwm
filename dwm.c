@@ -268,7 +268,7 @@ static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
 static int lrpad;            /* sum of left and right padding for text */
-static int dwmlogowdth = 54; /* dwm logo width */
+static int dwmlogowdth = 40; /* dwm logo width */
 static int vp;               /* vertical padding for bar */
 static int sp;               /* side padding for bar */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
@@ -845,31 +845,41 @@ drawbar(Monitor *m)
 			urg |= c->tags;
 	}
 
+
 	/* use colored scheme for visibility */
 	drw_setscheme(drw, scheme[SchemeNorm]);
 
 	/* draw dark background for logo */
 	drw_rect(drw, 0, 0, dwmlogowdth, bh, 1, 1);
 
-	/* draw dwm logo */
+	/* letter N approximation */
 	const DwmLogo dwmLogo[] = {
-		{  0,  9, stroke, letterHeight / 2 }, /* d: left vertical */
-		{  0, 15,     35, stroke           }, /* d: bottom horizontal */
-		{ 13,  1, stroke, letterHeight     }, /* d: right vertical */
-		{  0,  7,     15, stroke           }, /* d: top horizontal */
-		{ 22,  7, stroke, letterHeight / 2 }, /* w: center vertical */
-		{ 31,  7, stroke, letterHeight / 2 }, /* w: right vertical */
-		{ 31,  7,     22, stroke           }, /* m: top horizontal */
-		{ 40, 11, stroke, letterHeight / 2 }, /* m: center vertical */
-		{ 49, 11, stroke, letterHeight / 2 }  /* m: right vertical */
+		/* left vertical */
+		{ 8, 2, stroke, letterHeight },
+
+		/* right vertical */
+		{ 26, 2, stroke, letterHeight },
+
+		/* diagonal made from stacked rectangles */
+		{ 12, 2, stroke, stroke },       /* top segment */
+		{ 14, 4, stroke, stroke },       /* step 1 */
+		{ 16, 6, stroke, stroke },       /* step 2 */
+		{ 18, 8, stroke, stroke },      /* step 3 */
+		{ 20, 10, stroke, stroke },      /* step 4 */
+		{ 22, 12, stroke, stroke },      /* step 5 */
+		{ 24, 14, stroke, stroke }       /* bottom segment */
 	};
 
 	for (int i = 0; i < LENGTH(dwmLogo); i++) {
-		drw_rect(drw, dwmLogo[i].x, dwmLogo[i].y, dwmLogo[i].w, dwmLogo[i].h, 1, 0);
+		drw_rect(drw, dwmLogo[i].x, dwmLogo[i].y,
+		         dwmLogo[i].w, dwmLogo[i].h, 1, 0);
 	}
 
 	/* start drawing tags after logo */
 	x = dwmlogowdth;
+
+
+
 	for (i = 0; i < LENGTH(tags); i++) {
     /* Do not draw vacant tags */
 		if(!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
