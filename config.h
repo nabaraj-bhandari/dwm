@@ -11,19 +11,26 @@ static const int sidepad            = 8;       /* horizontal padding of bar */
 static const int user_bh            = 20;        /* 0 means that dwm will calculate bar height, >= 1 means dwm will user_bh as bar height */
 static const char *fonts[]          = { "JetBrains Mono:size=12" };
 static const char dmenufont[]       = "JetBrains Mono:size=12";
-static const char col_gray1[]       = "#222222";
-static const char col_gray2[]       = "#444444";
-static const char col_gray3[]       = "#bbbbbb";
-static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
+
+/* colors */
+static const char norm_fg[] = "#7ac3c8";
+static const char norm_bg[] = "#050909";
+static const char norm_border[] = "#55888c";
+static const char sel_fg[] = "#7ac3c8";
+static const char sel_bg[] = "#074B51";
+static const char sel_border[] = "#7ac3c8";
+static const char urg_fg[] = "#7ac3c8";
+static const char urg_bg[] = "#0E3A46";
+static const char urg_border[] = "#0E3A46";
 static const unsigned int baralpha = 0xAA;
 static const unsigned int borderalpha = OPAQUE;
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
-	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
-	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
-	[SchemeHid]  = { col_cyan,  col_gray1, col_cyan  },
+
+static const char *colors[][3] = {
+    /*               fg      bg        border*/
+    [SchemeNorm] = {norm_fg, norm_bg, norm_border},
+    [SchemeSel] = {sel_fg, sel_bg, sel_border},
 };
+
 static const unsigned int alphas[][3]      = {
     /*               fg      bg        border*/
     [SchemeNorm] = { OPAQUE, baralpha, borderalpha },
@@ -34,13 +41,9 @@ static const unsigned int alphas[][3]      = {
 static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
 static const Rule rules[] = {
-	/* xprop(1):
-	 *	WM_CLASS(STRING) = instance, class
-	 *	WM_NAME(STRING) = title
-	 */
 	/* class      instance    title       tags mask     isfloating   monitor */
-	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
-	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
+  {"dmenu_run_desktop", NULL, NULL, 1, 0, -1},
+
 };
 
 /* layout(s) */
@@ -59,7 +62,7 @@ static const Layout layouts[] = {
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 #define TAGKEYS(KEY,TAG) \
 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
@@ -70,16 +73,44 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 static const int dmenudesktop = 1; /* 1 means dmenu will use only desktop files from [/usr/share/applications/] */
+#include <X11/XF86keysym.h>
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", col_gray1, "-nf", col_gray3, "-sb", col_cyan, "-sf", col_gray4, NULL };
+static const char *dmenucmd[] = { "dmenu_run", "-m", dmenumon, "-fn", dmenufont, "-nb", norm_bg, "-nf", norm_fg, "-sb", sel_bg, "-sf", sel_fg, NULL };
 static const char *termcmd[]  = { "st", NULL };
+static const char *ytcmd[] = {"~/.local/bin/yt", NULL};
+static const char *audioMute[] = {"pactl", "set-sink-mute", "@DEFAULT_SINK@","toggle", NULL};
+static const char *audioLowerVolume[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%", NULL};
+static const char *audioRaiseVolume[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL};
+static const char *audioMicMute[] = {"pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle", NULL};
+static const char *monBrightnessDown[] = {"brightnessctl", "set", "10%-", NULL};
+static const char *monBrightnessUp[] = {"brightnessctl", "set", "+10%", NULL};
+static const char *screenshot[] = {"flameshot", "gui", NULL};
+static const char *fullscreenshot[] = {"flameshot", "full", "-c", "-p", "/home/nabaraj/Pictures/screenshots", NULL};
+static const char *emojiPicker[] = {"~/.local/bin/emoji-picker"};
+static const char *firefoxDefault[] = {"~/.local/bin/ff-tabs"};
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
-	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
-	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
+  // FUNCTION KEYS
+  {0,                     XF86XK_AudioMute,           spawn,      {.v = audioMute}},
+  {0,                     XF86XK_AudioLowerVolume,    spawn,      {.v = audioLowerVolume}},
+  {0,                     XF86XK_AudioRaiseVolume,    spawn,      {.v = audioRaiseVolume}},
+  {0,                     XF86XK_AudioMicMute,        spawn,      {.v = audioMicMute}},
+  {0,                     XF86XK_MonBrightnessDown,   spawn,      {.v = monBrightnessDown}},
+  {0,                     XF86XK_MonBrightnessUp,     spawn,      {.v = monBrightnessUp}},
+  {0,                     XK_Print,                   spawn,      {.v = screenshot}},
+  {MODKEY,                XK_Print,                   spawn,      {.v = fullscreenshot}},
+
+  // LAUNCHERS
+  {MODKEY, XK_a, spawn, {.v = dmenucmd}},
+  {MODKEY, XK_y, spawn, {.v = ytcmd}},
+  {MODKEY | ShiftMask, XK_Return, spawn, {.v = termcmd}},
+  {MODKEY, XK_e, spawn, {.v = emojiPicker}},
+  {MODKEY, XK_r, spawn, {.v = firefoxDefault}},
+
+  // WINDOW MANAGEMENT
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstackvis,  {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstackvis,  {.i = -1 } },
@@ -105,7 +136,7 @@ static const Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_period, tagmon,         {.i = +1 } },
 	{ MODKEY,                       XK_s,      show,           {0} },
 	{ MODKEY|ShiftMask,             XK_s,      showall,        {0} },
-	{ MODKEY,                       XK_h,      hide,           {0} },
+	{ MODKEY|ShiftMask,             XK_h,      hide,           {0} },
 	{ MODKEY,                       XK_minus,  setgaps,        {.i = -1 } },
 	{ MODKEY,                       XK_equal,  setgaps,        {.i = +1 } },
 	{ MODKEY|ShiftMask,             XK_equal,  setgaps,        {.i = 0  } },

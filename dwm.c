@@ -147,6 +147,10 @@ typedef struct {
 	int monitor;
 } Rule;
 
+typedef struct {
+	int x, y, w, h;
+} DwmLogo;
+
 /* function declarations */
 static void applyrules(Client *c);
 static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
@@ -264,6 +268,7 @@ static int screen;
 static int sw, sh;           /* X display screen geometry width, height */
 static int bh;               /* bar height */
 static int lrpad;            /* sum of left and right padding for text */
+static int dwmlogowdth = 54; /* dwm logo width */
 static int vp;               /* vertical padding for bar */
 static int sp;               /* side padding for bar */
 static int (*xerrorxlib)(Display *, XErrorEvent *);
@@ -530,11 +535,11 @@ buttonpress(XEvent *e)
 	}
 	if (ev->window == selmon->barwin) {
 		i = x = 0;
+		x = dwmlogowdth; /* dwm logo width */
 		unsigned int occ = 0;
 		for(c = m->clients; c; c=c->next)
 			occ |= c->tags == TAGMASK ? 0 : c->tags;
 		do {
-			/* Do not reserve space for vacant tags */
 			if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
 				continue;
 			x += TEXTW(tags[i]);
@@ -818,6 +823,7 @@ void
 drawbar(Monitor *m)
 {
 	int x, w, tw = 0, n = 0, scm;
+	int stroke = 4, letterHeight = bh - 4;
 	unsigned int i, occ = 0, urg = 0;
 	Client *c;
 
@@ -838,7 +844,32 @@ drawbar(Monitor *m)
 		if (c->isurgent)
 			urg |= c->tags;
 	}
-	x = 0;
+
+	/* use colored scheme for visibility */
+	drw_setscheme(drw, scheme[SchemeNorm]);
+
+	/* draw dark background for logo */
+	drw_rect(drw, 0, 0, dwmlogowdth, bh, 1, 1);
+
+	/* draw dwm logo */
+	const DwmLogo dwmLogo[] = {
+		{  0,  9, stroke, letterHeight / 2 }, /* d: left vertical */
+		{  0, 15,     35, stroke           }, /* d: bottom horizontal */
+		{ 13,  1, stroke, letterHeight     }, /* d: right vertical */
+		{  0,  7,     15, stroke           }, /* d: top horizontal */
+		{ 22,  7, stroke, letterHeight / 2 }, /* w: center vertical */
+		{ 31,  7, stroke, letterHeight / 2 }, /* w: right vertical */
+		{ 31,  7,     22, stroke           }, /* m: top horizontal */
+		{ 40, 11, stroke, letterHeight / 2 }, /* m: center vertical */
+		{ 49, 11, stroke, letterHeight / 2 }  /* m: right vertical */
+	};
+
+	for (int i = 0; i < LENGTH(dwmLogo); i++) {
+		drw_rect(drw, dwmLogo[i].x, dwmLogo[i].y, dwmLogo[i].w, dwmLogo[i].h, 1, 0);
+	}
+
+	/* start drawing tags after logo */
+	x = dwmlogowdth;
 	for (i = 0; i < LENGTH(tags); i++) {
     /* Do not draw vacant tags */
 		if(!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
